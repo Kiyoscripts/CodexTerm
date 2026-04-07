@@ -42,24 +42,3 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Decode release keystore
-        if: ${{ secrets.CODEXTERM_UPLOAD_KEYSTORE_BASE64 != '' }}
-        run: |
-          echo "${{ secrets.CODEXTERM_UPLOAD_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/codexterm-upload.jks"
-
-      - name: Build signed release APK
-        if: ${{ secrets.CODEXTERM_UPLOAD_KEYSTORE_BASE64 != '' && secrets.CODEXTERM_UPLOAD_STORE_PASSWORD != '' && secrets.CODEXTERM_UPLOAD_KEY_ALIAS != '' && secrets.CODEXTERM_UPLOAD_KEY_PASSWORD != '' }}
-        env:
-          CODEXTERM_UPLOAD_STORE_FILE: ${{ runner.temp }}/codexterm-upload.jks
-          CODEXTERM_UPLOAD_STORE_PASSWORD: ${{ secrets.CODEXTERM_UPLOAD_STORE_PASSWORD }}
-          CODEXTERM_UPLOAD_KEY_ALIAS: ${{ secrets.CODEXTERM_UPLOAD_KEY_ALIAS }}
-          CODEXTERM_UPLOAD_KEY_PASSWORD: ${{ secrets.CODEXTERM_UPLOAD_KEY_PASSWORD }}
-        run: ./gradlew --stacktrace assembleRelease
-
-      - name: Upload release APK
-        if: ${{ secrets.CODEXTERM_UPLOAD_KEYSTORE_BASE64 != '' && secrets.CODEXTERM_UPLOAD_STORE_PASSWORD != '' && secrets.CODEXTERM_UPLOAD_KEY_ALIAS != '' && secrets.CODEXTERM_UPLOAD_KEY_PASSWORD != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: codexterm-release-apk
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
